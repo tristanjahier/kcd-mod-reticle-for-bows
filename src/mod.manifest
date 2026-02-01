@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<kcd_mod>
+    <info>
+        <modid>reticle_for_bows</modid>
+        <name>Reticle for bows</name>
+        <description>Show the dot reticle also when holding bows, which make them easier to use.</description>
+        <author>Yetix</author>
+        <version>1.0</version>
+        <created_on>2026-01-27</created_on>
+    </info>
+    <supports>
+        <kcd_version>1.9.*</kcd_version>
+    </supports>
+</kcd_mod>
