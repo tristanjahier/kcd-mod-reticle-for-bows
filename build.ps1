@@ -1,15 +1,18 @@
+Set-StrictMode -Version 3.0
+
 # ==== Config ====
 
-$RootDir = Split-Path -Path $MyInvocation.MyCommand.Path -Parent
-$SrcDir  = Join-Path $RootDir 'src'
-$DataDir = Join-Path $SrcDir 'Data'
-$DistDir = Join-Path $RootDir 'dist'
-$PakName = 'data'
+$RootDir  = Split-Path -Path $MyInvocation.MyCommand.Path -Parent
+$SrcDir   = Join-Path $RootDir 'src'
+$DataDir  = Join-Path $SrcDir 'Data'
+$BuildDir = Join-Path $RootDir 'build'
+$PakName  = 'data'
 
 
 # ==== Find 7zip ====
 
-$SevenZip = (Get-Command '7z.exe' -ErrorAction SilentlyContinue).Path
+$SevenZip = Get-Command '7z.exe' -CommandType Application -ErrorAction SilentlyContinue |
+    Select-Object -First 1 -ExpandProperty Source
 
 if (-not $SevenZip) {
     $candidates = @(
@@ -38,43 +41,24 @@ if (-not (Test-Path $DataDir)) {
 }
 
 
-# ==== Prepare dist\ directory ====
+# ==== Prepare build\ directory ====
 
-if (Test-Path $DistDir) {
-    Remove-Item -LiteralPath $DistDir -Recurse -Force -ErrorAction Stop
+if (Test-Path $BuildDir) {
+    Remove-Item -LiteralPath $BuildDir -Recurse -Force -ErrorAction Stop
 }
 
-New-Item -Path $DistDir -ItemType Directory -Force | Out-Null
+New-Item -Path $BuildDir -ItemType Directory -Force | Out-Null
 
 
-# ==== 'Pak' the contents of the Data\ directory ====
-
-New-Item -Path (Join-Path $DistDir 'Data') -ItemType Directory -Force | Out-Null
-
-$archivePath = Join-Path $DistDir "Data\$PakName.pak"
-Write-Host "Building .pak with contents of Data\ ... " -NoNewLine
-
-Push-Location $DataDir
-& $SevenZip a -tzip $archivePath * -r -mx9 >$null
-Pop-Location
-
-if ($LASTEXITCODE -ne 0) {
-    Write-Error "ERROR: 7-Zip failed to create pak (exit code $LASTEXITCODE)."
-    exit 1
-}
-
-Write-Host "✔"
-
-
-# ==== Copy everything else to dist ====
+# ==== Copy everything to build\ ====
 
 if (-not (Get-Command robocopy -ErrorAction SilentlyContinue)) {
     Write-Error "ERROR: robocopy not found."
     exit 1
 }
 
-Write-Host "Copying everything else ... " -NoNewLine
-& robocopy $SrcDir $DistDir /MIR /XD (Join-Path $SrcDir 'Data') /FFT /R:1 /W:1 >$null
+Write-Host "Copying everything ... " -NoNewLine
+& robocopy $SrcDir $BuildDir /MIR /XD 'Data' /FFT /R:1 /W:1 >$null
 
 if ($LASTEXITCODE -ge 8) {
     Write-Error "ERROR: robocopy failed copying files (exit code $LASTEXITCODE)."
@@ -83,5 +67,27 @@ if ($LASTEXITCODE -ge 8) {
 
 Write-Host "✔"
 
-Write-Host "Build complete in $DistDir." -ForegroundColor Blue
+
+# ==== 'Pak' the contents of the Data\ directory ====
+
+New-Item -Path (Join-Path $BuildDir 'Data') -ItemType Directory -Force | Out-Null
+
+$pakPath = Join-Path $BuildDir "Data\$PakName.pak"
+Write-Host "Building .pak with contents of Data\ ... " -NoNewLine
+
+Push-Location $DataDir
+try {
+    & $SevenZip a -tzip $pakPath * -r -mx9 >$null
+} finally {
+    Pop-Location
+}
+
+if ($LASTEXITCODE -ne 0) {
+    Write-Error "ERROR: 7-Zip failed to create pak (exit code $LASTEXITCODE)."
+    exit 1
+}
+
+Write-Host "✔"
+
+Write-Host "Build complete in $BuildDir." -ForegroundColor Blue
 exit 0

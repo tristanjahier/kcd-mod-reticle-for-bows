@@ -23,17 +23,25 @@ That's it.
 
 ## Development
 
-On Windows, use Powershell to run these scripts:
+On Windows, use Powershell to run the helper scripts. 7zip and robocopy are required.
 
+### Building
 ```powershell
 .\build.ps1
 ```
-➥ Creates the .pak, and put everything together in the dist\ directory. This is what you can deploy or publish.
+➥ Creates the `.pak`, and put everything together in the `build\` directory. This is what you can deploy or distribute.
 
+### Deploying in the game
 ```powershell
 .\deploy.ps1
 ```
-➥ Runs the build script, then copies the mod files to the game's Mods\ directory, and adds an entry to `mod_order.txt` if needed.
+➥ Runs the build script, then copies the mod files to the game's `Mods\` directory, and adds an entry to `mod_order.txt` if needed.
+
+### Creating a release package
+```powershell
+.\release.ps1
+```
+➥ Runs the build script, then packages the mod files from `build\` into a `.zip` archive using this naming scheme: `<mod name> v<version>.zip`. Release packages are stored in the `releases\` directory. This is the package you should submit to a mod hosting platform.
 
 ## Multiple similar mods already exist, why create a new one?
 
