@@ -7,6 +7,7 @@
         <author>Yetix</author>
         <version>1.0</version>
         <created_on>2026-01-27</created_on>
+        <modifies_level>false</modifies_level>
     </info>
     <supports>
         <kcd_version>1.9.*</kcd_version>
