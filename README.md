@@ -2,6 +2,8 @@
 
 This extremely simple mod enables the game setting `wh_pl_ShowFireCursor`, which makes the dot reticle visible even when holding a bow. (By default, the reticle shows only with bare hands and melee weapons.)
 
+![A screenshot of the game showing Henry hunting a red deer in a clearing in the forest. The dot reticle is visible in the center of the screen.](screenshot.jpg)
+
 ## Installation
 
 Download a release package or build the mod yourself, then copy the mod directory (`reticle_for_bows`) inside the game's Mods directory.
